@@ -196,7 +196,7 @@ func Encrypt(key []byte, iv []byte, data []byte, algo string, mode string) ([]by
 	return C.GoBytes(unsafe.Pointer(encryptedData), length), nil
 }
 
-func Decrypt(key []byte, iv []byte, data []byte, algo string, mode string) ([]byte, error) {
+func Decrypt(key []byte, iv []byte, data []byte, algo string, mode string, size int) ([]byte, error) {
 	// keep track of the size of the input data
 	length := C.int(len(data))
 	if length == 0 {
@@ -210,7 +210,7 @@ func Decrypt(key []byte, iv []byte, data []byte, algo string, mode string) ([]by
 	var cmode *C.char = C.CString(mode)
 	defer C.free(unsafe.Pointer(cmode))
 	// decrypt the data
-	decryptedData := C.decrypt(unsafe.Pointer(&key[0]), C.int(len(key)), unsafe.Pointer(&iv[0]), C.int(len(iv)), (*C.char)(unsafe.Pointer(&data[0])), (*C.int)(unsafe.Pointer(&length)), (*C.char)(unsafe.Pointer(calgo)), (*C.char)(unsafe.Pointer(cmode)), (*C.int)(unsafe.Pointer(&err)))
+	decryptedData := C.decrypt(unsafe.Pointer(&key[0]), size, unsafe.Pointer(&iv[0]), C.int(len(iv)), (*C.char)(unsafe.Pointer(&data[0])), (*C.int)(unsafe.Pointer(&length)), (*C.char)(unsafe.Pointer(calgo)), (*C.char)(unsafe.Pointer(cmode)), (*C.int)(unsafe.Pointer(&err)))
 	// ensure that memory is freed on the decrypted data after it is converted to Go bytes
 	defer C.free(unsafe.Pointer(decryptedData))
 
